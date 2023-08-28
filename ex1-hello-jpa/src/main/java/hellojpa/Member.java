@@ -6,44 +6,19 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@TableGenerator(
-        name = "MEMBER_SEQ_GENERATOR",
-        table = "MY_SEQUENCES",
-        pkColumnValue = "MEMBER_SEQ", //매핑할 데이터베이스 시퀀스 이름
-        initialValue = 1, allocationSize = 1)
 public class Member {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE, generator = "MEMBER_SEQ_GENERATOR")
+    @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "username")
     private String username;
 
-    private Integer age;
-
-    @Enumerated(EnumType.STRING)    // EnumType.ORDINAL은 사용 금지! RoleType 첫번쨰로 다른걸 추가하면 걔도 0이되어서 기존 0과 겹쳐버림.. 꼭 EnumType.STRING를 꼭 붙여쓰자
-    private RoleType roleType;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdDate;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastModifiedDate;
-
-    @Lob
-    private String description;
-
-    @Transient  // 그냥 메모리에만 쓰고싶을 때 ! create할때는 이칼럼 안만들어짐
-    private int temp;
-
-    public Member(){
-    }
-
-    public Member(Long id, String username){
-        this.id = id;
-        this.username = username;
-    }
+    @ManyToOne
+    @JoinColumn(name = "team_id")
+    private Team team;
 
     public Long getId() {
         return id;
@@ -61,51 +36,18 @@ public class Member {
         this.username = username;
     }
 
-    public Integer getAge() {
-        return age;
+    public Team getTeam() {
+        return team;
     }
 
-    public void setAge(Integer age) {
-        this.age = age;
+    public void setTeam(Team team) {
+        this.team = team;
     }
 
-    public RoleType getRoleType() {
-        return roleType;
-    }
-
-    public void setRoleType(RoleType roleType) {
-        this.roleType = roleType;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
-    }
-
-    public Date getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Date lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getTemp() {
-        return temp;
-    }
-
-    public void setTemp(int temp) {
-        this.temp = temp;
+    public void changeTeam(Team team) {    // 강사님 개인 취향이지만 로직 없이 set할때만 setXxx라 이름짓고,
+                                        // jpa 상태를 변경하거나 연관관계 편의 메서드같이 로직이 들어갈 때는 changeXxx라고 이름 짓는다.
+                                        // 단순한 getter, setter 관례에 의한 것이 아니라 뭔가 로직이 있구나 라는 것을 이름만 보고 알 수 있게!
+        this.team = team;
+        team.getMembers().add(this); // 연관관계 편의 메소드
     }
 }
