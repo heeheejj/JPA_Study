@@ -20,7 +20,9 @@ public class Order {
     @ManyToOne
     @JoinColumn(name="MEMBER_ID")   // JoinColumn을 통해 매핑해주기
     private Member member;
-
+    @OneToOne
+    @JoinColumn(name = "DELIVERY_ID")
+    private Delivery delivery;
     @OneToMany(mappedBy = "order")
     private List<OrderItem> orderItems = new ArrayList<>();
     private LocalDateTime orderDate;
